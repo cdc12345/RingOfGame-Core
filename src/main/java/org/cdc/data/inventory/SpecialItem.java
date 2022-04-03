@@ -1,13 +1,14 @@
 package org.cdc.data.inventory;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.cdc.data.mob.AggressiveMob;
 
-import java.util.function.Function;
-
 /**
+ * @author cdc123
  * 特殊物品类
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class SpecialItem extends Item{
     public SpecialItem(){
@@ -25,19 +26,19 @@ public class SpecialItem extends Item{
         this.useful = a->true;
     }
 
-    public SpecialItem(String itemName, long itemId, Function<Item, Boolean> available) {
+    public SpecialItem(String itemName, long itemId, ItemAvailableChecker available) {
         super(itemName, itemId, available);
         this.useful = bagMob -> true;
     }
 
-    public SpecialItem(String itemName, long itemId, Function<Item, Boolean> available, Function<AggressiveMob, Boolean> useful){
+    public SpecialItem(String itemName, long itemId, ItemAvailableChecker available, ItemUsefulChecker useful){
         super(itemName, itemId, available);
         this.useful = useful;
     }
 
-    public SpecialItem(String itemName, long itemId, Function<Item, Boolean> available, String place, double health,
+    public SpecialItem(String itemName, long itemId, ItemAvailableChecker available, String place, double health,
                        double power, double damage, double defense, double powerDamage, double powerDefense,
-                       Function<AggressiveMob, Boolean> useful) {
+                       ItemUsefulChecker useful) {
         super(itemName, itemId, available);
         this.place = place;
         this.health = health;
@@ -80,9 +81,9 @@ public class SpecialItem extends Item{
     /**
      * 特殊物品可用性检查
      */
-    protected Function<AggressiveMob, Boolean> useful;
-    public boolean isUseful(AggressiveMob bagMob){
-        return useful.apply(bagMob);
+    protected ItemUsefulChecker useful;
+    public boolean isUseful(AggressiveMob mob){
+        return useful.check(mob);
     }
 
 }

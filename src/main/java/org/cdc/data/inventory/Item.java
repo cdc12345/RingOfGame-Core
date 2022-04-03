@@ -2,10 +2,9 @@ package org.cdc.data.inventory;
 
 import lombok.Data;
 
-import java.util.function.Function;
-
 /**
  * 物品类
+ * @author cdc123
  */
 @Data
 public class Item {
@@ -36,7 +35,7 @@ public class Item {
     public Item(String itemName,long itemId){
         this(itemName,itemId,a->true);
     }
-    public Item(String itemName,long itemId,Function<Item,Boolean> available){
+    public Item(String itemName, long itemId, ItemAvailableChecker available){
         this.itemName = itemName;
         this.itemId = itemId;
         this.available = available;
@@ -52,8 +51,8 @@ public class Item {
     /**
      * 可用性检查
      */
-    protected Function<Item,Boolean> available;
+    protected ItemAvailableChecker available;
     public boolean isAvailable() {
-        return available.apply(this);
+        return available.checkItem(this);
     }
 }

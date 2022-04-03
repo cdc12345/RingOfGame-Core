@@ -1,6 +1,7 @@
 package org.cdc;
 
 
+import lombok.Data;
 import org.cdc.plugins.AbstractPlugin;
 
 import javax.script.ScriptEngine;
@@ -8,20 +9,23 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Properties;
 
-@lombok.Data
-public class Data {
-    private static Data instance;
-    public static Data getInstance(){
-        if (instance == null) instance = new Data();
+/**
+ * @author cdc123
+ */
+@Data
+public class LoadedInformation {
+    private static LoadedInformation instance;
+
+    public static LoadedInformation getInstance() {
+        if (instance == null) {
+            instance = new LoadedInformation();
+        }
         return instance;
     }
-    public Data(){
+
+    private LoadedInformation() {
     }
 
-    /**
-     * 配置目录
-     */
-    private Path configPath;
     /**
      * 配置实例
      */
@@ -30,6 +34,12 @@ public class Data {
      * 脚本定义配置实例
      */
     private Properties scripts;
+
+
+    /**
+     * 配置目录
+     */
+    private Path configPath;
     /**
      * 数据目录
      */

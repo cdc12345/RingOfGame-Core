@@ -7,37 +7,20 @@ import java.util.ArrayList;
 
 /**
  * 场景基类
+ * @author cdc123
  */
 @Data
 public abstract class Stage {
-    private static long existStageId = -1;
 
-    /**
-     * 分配场景唯一id
-     * 如果想要获得生物id分配到了哪,请看{@link Stage#getExistStageId()} }
-     * @return 分配的id
-     */
-    public static long createStageId(){
-        return ++existStageId;
-    }
-
-    /**
-     * 获取当前分配至的场景唯一id
-     * @return 如果没有分配那么返回-1
-     */
-    public static long getExistStageId(){return existStageId;}
-
-    public Stage(){
-        this("");
-    }
     public Stage(String name){
-        this(name,null,createStageId(),new ArrayList<>());
+        this(name,null,new ArrayList<>(),true);
     }
-    public Stage(String name, Stage parent, long id, ArrayList<Mob> mobs) {
+    public Stage(String name, Stage parent, ArrayList<Mob> mobs,boolean lock) {
         this.name = name;
         this.parent = parent;
-        this.id = id;
+
         this.mobs = mobs;
+        this.lock = lock;
     }
 
     /**
@@ -51,10 +34,15 @@ public abstract class Stage {
     /**
      * 舞台id
      */
-    protected long id;
+    protected long id = -1;
     /**
      * 生物列表
      */
-    protected ArrayList<Mob> mobs;
+    protected final ArrayList<Mob> mobs;
+
+    /**
+     * 是否锁定,如果被锁定那么就不是临时场景
+     */
+    protected final boolean lock;
 
 }

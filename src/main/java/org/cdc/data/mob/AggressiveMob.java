@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import org.cdc.data.Inventory;
 import org.cdc.data.inventory.SpecialItem;
 import org.cdc.data.stage.Stage;
+import org.cdc.manager.ItemManager;
 import org.cdc.manager.MobManager;
 import org.cdc.script.SystemScriptEngine;
 
@@ -22,20 +23,6 @@ public abstract class AggressiveMob extends Mob {
     public AggressiveMob(){
         super();
         this.inventory = new Inventory(this);
-    }
-    public AggressiveMob(String name, Long mobId, MobGender mobGender, double maxHealth, double health,
-                         double maxPower, double power, double damage, double defense, double powerDamage,
-                         double powerDefense , Stage stage) {
-        super(name, mobId, mobGender,stage, MobManager.getDEFAULT_AI());
-        this.maxHealth = maxHealth;
-        this.health = health;
-        this.maxPower = maxPower;
-        this.power = power;
-        this.damage = damage;
-        this.defense = defense;
-        this.powerDamage = powerDamage;
-        this.powerDefense = powerDefense;
-        updateMob();
     }
 
     /**
@@ -88,23 +75,24 @@ public abstract class AggressiveMob extends Mob {
     Inventory inventory;
 
     public double getDamageAfterMarch(){
-        return inventory.getEquipment().values().stream().map(SpecialItem::getDamage).reduce(getDamage(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a-> ((SpecialItem)ItemManager.getRegisteredItemByName(a)).getDamage()
+        ).reduce(getDamage(),Double::sum);
     }
 
     public double getDefenseAfterMarch() {
-        return inventory.getEquipment().values().stream().map(SpecialItem::getDefense).reduce(getDefense(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a->(SpecialItem)ItemManager.getRegisteredItemByName(a)).map(SpecialItem::getDefense).reduce(getDefense(),Double::sum);
     }
     public double getMaxHealthAfterMarch() {
-        return inventory.getEquipment().values().stream().map(SpecialItem::getHealth).reduce(getMaxHealth(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a->(SpecialItem)ItemManager.getRegisteredItemByName(a)).map(SpecialItem::getHealth).reduce(getMaxHealth(),Double::sum);
     }
     public double getMaxPowerAfterMarch() {
-        return inventory.getEquipment().values().stream().map(SpecialItem::getPower).reduce(getMaxPower(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a->(SpecialItem)ItemManager.getRegisteredItemByName(a)).map(SpecialItem::getPower).reduce(getMaxPower(),Double::sum);
     }
     public double getPowerDamagedAfterMarch(){
-        return inventory.getEquipment().values().stream().map(SpecialItem::getPowerDamage).reduce(getPowerDamage(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a->(SpecialItem)ItemManager.getRegisteredItemByName(a)).map(SpecialItem::getPowerDamage).reduce(getPowerDamage(),Double::sum);
     }
     public double getPowerDefenseAfterMarch(){
-        return inventory.getEquipment().values().stream().map(SpecialItem::getPowerDefense).reduce(getPowerDefense(),Double::sum);
+        return inventory.getEquipment().values().stream().map(a->(SpecialItem)ItemManager.getRegisteredItemByName(a)).map(SpecialItem::getPowerDefense).reduce(getPowerDefense(),Double::sum);
     }
 
     public void updateMob(){
@@ -158,10 +146,12 @@ public abstract class AggressiveMob extends Mob {
             }
             if (exp >= maxExp) {
                 exp = exp - maxExp;
-                SystemScriptEngine.evalLevel(this);
+                maxExp = SystemScriptEngine.evalLevel(this);
                 level++;
                 levels++;
-            } else break;
+            } else {
+                break;
+            }
         }
         return levels;
     }

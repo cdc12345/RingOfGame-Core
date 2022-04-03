@@ -1,6 +1,7 @@
 package org.cdc.events;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author Administrator
@@ -8,25 +9,24 @@ import lombok.Data;
  * @Description 战斗事件
  * @date 2022/3/30 12:33
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class CombatEvent {
+public class CombatEvent extends Event {
     public CombatEvent(String sponsorName, String attacked, long damage) {
         this.sponsorName = sponsorName;
         this.attacked = attacked;
         this.damage = damage;
     }
-
-    private String watcher;
     /**
      * 攻击者
      */
-    private final String sponsorName;
+    protected final String sponsorName;
     /**
      * 被攻击者
      */
-    private final String attacked;
+    protected final String attacked;
     /**
      * 伤害
      */
-    private final long damage;
+    protected final long damage;
 }

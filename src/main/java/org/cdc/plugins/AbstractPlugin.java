@@ -1,13 +1,16 @@
 package org.cdc.plugins;
 
 import com.sun.istack.internal.NotNull;
-import org.cdc.Data;
+import org.cdc.LoadedInformation;
 
 import java.nio.file.Path;
 
+/**
+ * @author cdc123
+ */
 public abstract class AbstractPlugin {
     public static AbstractPlugin getPlugin(@NotNull String name){
-        for (AbstractPlugin plugin: Data.getInstance().getPluginList()){
+        for (AbstractPlugin plugin: LoadedInformation.getInstance().getPluginList()){
             if (plugin.getName().equals(name)){
                 return plugin;
             }

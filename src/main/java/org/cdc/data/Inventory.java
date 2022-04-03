@@ -5,11 +5,13 @@ import org.cdc.data.inventory.Item;
 import org.cdc.data.inventory.ItemStack;
 import org.cdc.data.inventory.SpecialItem;
 import org.cdc.data.mob.AggressiveMob;
+import org.cdc.manager.ItemManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * @author cdc123
  * 背包数据存储类
  */
 @Data
@@ -25,7 +27,7 @@ public class Inventory {
     /**
      * 装备映射
      */
-    protected HashMap<String, SpecialItem> equipment = new HashMap<>();
+    protected HashMap<String, String> equipment = new HashMap<>();
 
     /**
      * 替换物品,与{@link Inventory#addItem(String, long)}存在区别,详情请看它的注释
@@ -42,9 +44,9 @@ public class Inventory {
     /**
      * 添加物品,与{@link Inventory#replaceItem(String, long)}存在差异
      * 等效于replaceItem(name,number+)
-     * @param name
-     * @param number
-     * @return
+     * @param name 物品名称
+     * @param number 物品数量
+     * @return 成功性
      */
     public boolean addItem(String name,long number){
         if (items.containsKey(name)){
@@ -86,19 +88,20 @@ public class Inventory {
                 result = true;
                 continue;
             }
-            if (!a.getValue().getItem().isAvailable()){
+            if (a.getValue().getItem().isAvailable()){
                 items.remove(a.getKey());
                 result = true;
             }
         }
-        for (Map.Entry<String, SpecialItem> a:equipment.entrySet()){
-            if (!a.getValue().isAvailable()){
+        for (Map.Entry<String, String> a:equipment.entrySet()){
+            SpecialItem item =(SpecialItem) ItemManager.getRegisteredItemByName(a.getValue());
+            if (item.isAvailable()){
                 equipment.remove(a.getKey());
                 result = true;
                 continue;
             }
-            if (!a.getValue().isUseful(upperMob)){
-                addItem(a.getValue().getItemName(),1);
+            if (!item.isUseful(upperMob)){
+                addItem(item.getItemName(),1);
                 equipment.remove(a.getKey());
                 result = true;
             }
@@ -109,7 +112,7 @@ public class Inventory {
     /**
      * 得到物品数量
      * @param name 物品名称
-     * @return
+     * @return 物品数量
      */
     public long getItemNumber(String name){
         return items.get(name).getNumber();
@@ -121,12 +124,12 @@ public class Inventory {
             }
             removeItem(name,1);
         }
-        Item item = ItemStack.getItem(name);
+        Item item = ItemManager.getRegisteredItemByName(name);
         if (!(item instanceof SpecialItem)){
             return false;
         }
         SpecialItem specialItem = (SpecialItem) item;
-        equipment.put(specialItem.getPlace(), specialItem);
+        equipment.put(specialItem.getPlace(), specialItem.getItemName());
         return true;
     }
 }

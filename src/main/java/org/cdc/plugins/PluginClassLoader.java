@@ -1,7 +1,7 @@
 package org.cdc.plugins;
 
 import com.alibaba.fastjson.JSONObject;
-import org.cdc.Data;
+import org.cdc.LoadedInformation;
 import org.cdc.plugins.exception.PluginException;
 
 import java.io.File;
@@ -19,7 +19,7 @@ public class PluginClassLoader {
     private static ClassLoader parent = Thread.currentThread().getContextClassLoader();
     private final URLClassLoader pluginClassLoader;
     private PluginInformation information;
-    public PluginClassLoader(File pluginFile) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, PluginException {
+    public PluginClassLoader(File pluginFile) throws IOException {
         String jarExtension = ".jar";
         if (pluginFile.getName().endsWith(jarExtension)){
             URL[] urls = {pluginFile.toURI().toURL()};
@@ -33,7 +33,7 @@ public class PluginClassLoader {
     public AbstractPlugin loadPlugin() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, PluginException {
         information = loadPluginInformation();
         pluginInstance = initPlugin();
-        Data.getInstance().getPluginList().add(pluginInstance);
+        LoadedInformation.getInstance().getPluginList().add(pluginInstance);
         return pluginInstance;
     }
 
@@ -41,9 +41,12 @@ public class PluginClassLoader {
      * 载入插件信息
      * 这必须是第一个被执行
      * @return 插件信息实例
-     * @throws IOException
+     * @throws IOException io异常
      */
     public PluginInformation loadPluginInformation() throws IOException {
+        if (information != null){
+            return information;
+        }
         //获取plugin.json
         URL plugin = pluginClassLoader.findResource("plugin.json");
         return JSONObject.parseObject(plugin.openStream(),PluginInformation.class);
@@ -60,14 +63,17 @@ public class PluginClassLoader {
      * @throws IllegalAccessException 非法访问
      */
     public AbstractPlugin initPlugin() throws PluginException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        if (pluginInstance != null){
+            return pluginInstance;
+        }
         //创建对应的插件数据文件夹
-        Path pluginDataStorePath = Paths.get(Data.getInstance().toString(), information.getPluginName());
+        Path pluginDataStorePath = Paths.get(LoadedInformation.getInstance().toString(), information.getPluginName());
         if (!pluginDataStorePath.toFile().exists()){
             pluginDataStorePath.toFile().mkdir();
         }
         information.setDataPath(pluginDataStorePath);
         //获取插件实例并存放
-        Class<?> pluginClass = (Class<?>) pluginClassLoader
+        Class<?> pluginClass = pluginClassLoader
                 .loadClass(information.getMainClass());
         if (pluginClass.getDeclaringClass().equals(AbstractPlugin.class)) {
             AbstractPlugin pluginInstance = (AbstractPlugin) pluginClass.newInstance();

@@ -1,22 +1,29 @@
 package org.cdc.data.skills;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.cdc.events.CombatEvent;
+import lombok.Data;
+import org.cdc.events.SkillCombatEvent;
 
-import java.util.function.Function;
-
-@Getter
-public class Skill {
-    private String name;
-    @Setter
-    private Function<CombatEvent,Long> damage;
+/**
+ * @author cdc123
+ * @date 2020.1.23
+ * @e-mail 3154934427@qq.com
+ */
+@Data
+public abstract class Skill {
     /**
-     * 使用此技能会出现的描述性文字
+     * 技能名字
      */
-    private String afterWords = "[self]对[another]使用了[skill],造成了[damage]";
+    protected  String name;
+    /**
+     * 技能反馈
+     */
+    protected SkillReflect skill;
 
-    public Long getDamage(CombatEvent selfAttackedEvent){
-        return damage.apply(selfAttackedEvent);
+    public Long getDamage(SkillCombatEvent event) {
+        return skill.onSkillUsed(event);
+    }
+
+    public String getMessage(SkillCombatEvent event) {
+        return skill.onSkillUsedMessage(event);
     }
 }
