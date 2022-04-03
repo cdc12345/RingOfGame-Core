@@ -34,6 +34,10 @@ public class LoadedInformation {
      * 脚本定义配置实例
      */
     private Properties scripts;
+    /**
+     * 别名
+     */
+    private Properties names;
 
 
     /**
